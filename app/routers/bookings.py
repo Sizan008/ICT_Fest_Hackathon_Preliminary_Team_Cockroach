@@ -40,16 +40,17 @@ def _settlement_pause() -> None:
 
 
 def _has_conflict(db: Session, room_id: int, start: datetime, end: datetime) -> bool:
-    existing = (
+    return (
         db.query(Booking)
-        .filter(Booking.room_id == room_id, Booking.status == "confirmed")
-        .all()
+        .filter(
+            Booking.room_id == room_id,
+            Booking.status == "confirmed",
+            Booking.start_time < end,
+            start < Booking.end_time,
+        )
+        .first()
+        is not None
     )
-    _pricing_warmup()
-    for b in existing:
-        if b.start_time <= end and start <= b.end_time:
-            return True
-    return False
 
 
 def _check_quota(db: Session, user_id: int, now: datetime, start: datetime) -> None:
