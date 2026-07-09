@@ -12,3 +12,5 @@
 12. Refund Amount Mismatch issue fixed
 13. Multiple refund log issue fixed
 14. Room stats was coming from memory, now it will come from the database
+15. Current State will reflect immediately
+16.
