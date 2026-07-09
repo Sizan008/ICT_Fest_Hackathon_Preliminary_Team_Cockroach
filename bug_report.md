@@ -8,4 +8,7 @@
 8. pagination issue fixed
 9. users can see one another booking issue fixed
 10. Booking's wrong start time issue fixed
-11. Refund Policy fixed following the pdf
+11. Refund Policy correction in code c following the pdf
+12. Refund Amount Mismatch issue fixed
+13. 
+14. 
