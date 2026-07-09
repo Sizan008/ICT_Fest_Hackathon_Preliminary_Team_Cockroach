@@ -83,14 +83,24 @@ def create_booking(
     end = parse_input_datetime(payload.end_time)
     now = datetime.utcnow()
 
-    if start <= now - timedelta(seconds=300):
+    if start <= now:
         raise AppError(400, "INVALID_BOOKING_WINDOW", "start_time must be in the future")
 
-    duration_hours = (end - start).total_seconds() / 3600
-    if duration_hours != int(duration_hours):
-        raise AppError(400, "INVALID_BOOKING_WINDOW", "duration must be a whole number of hours")
-    duration_hours = int(duration_hours)
-    if duration_hours > MAX_DURATION_HOURS:
+    if end <= start:
+        raise AppError(400, "INVALID_BOOKING_WINDOW", "end_time must be after start_time")
+
+    duration_hours_float = (end - start).total_seconds() / 3600
+
+    if duration_hours_float != int(duration_hours_float):
+        raise AppError(
+            400,
+            "INVALID_BOOKING_WINDOW",
+            "duration must be a whole number of hours",
+        )
+
+    duration_hours = int(duration_hours_float)
+
+    if duration_hours < MIN_DURATION_HOURS or duration_hours > MAX_DURATION_HOURS:
         raise AppError(400, "INVALID_BOOKING_WINDOW", "duration out of range")
 
     room = db.query(Room).filter(Room.id == payload.room_id, Room.org_id == user.org_id).first()
@@ -103,6 +113,7 @@ def create_booking(
     _check_quota(db, user.id, now, start)
 
     price_cents = room.hourly_rate_cents * duration_hours
+
     booking = Booking(
         room_id=room.id,
         user_id=user.id,
@@ -113,6 +124,7 @@ def create_booking(
         price_cents=price_cents,
         created_at=now,
     )
+
     db.add(booking)
     db.commit()
     db.refresh(booking)
@@ -122,7 +134,6 @@ def create_booking(
     notifications.notify_created(booking)
 
     return serialize_booking(booking)
-
 
 @router.get("/bookings")
 def list_bookings(
