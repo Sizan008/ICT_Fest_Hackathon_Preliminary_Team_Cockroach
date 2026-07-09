@@ -113,3 +113,10 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != "admin":
         raise AppError(403, "FORBIDDEN", "Admin privileges required")
     return user
+
+_used_refresh_tokens: set[str] = set()
+def use_refresh_token(payload: dict) -> None:
+    jti = payload.get("jti")
+    if jti in _used_refresh_tokens:
+        raise AppError(401, "UNAUTHORIZED", "Refresh token already used")
+    _used_refresh_tokens.add(jti)    
