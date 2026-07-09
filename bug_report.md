@@ -11,4 +11,4 @@
 11. Refund Policy correction in code c following the pdf
 12. Refund Amount Mismatch issue fixed
 13. Multiple refund log issue fixed
-14. 
+14. Room stats was coming from memory, now it will come from the database
